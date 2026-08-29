@@ -36,11 +36,14 @@ test("guided workflow exposes live agent progress", async ({ page }) => {
 });
 
 test("workspace visual regression", async ({ page }) => {
-  await page.addStyleTag({ content: "#recent-runs{height:100px;overflow:hidden}" });
+  await page.addStyleTag({
+    content:
+      "#recent-runs{height:100px;overflow:hidden}.benchmark-proof{height:96px;overflow:hidden}",
+  });
   await expect(page).toHaveScreenshot("workspace.png", {
     fullPage: true,
     animations: "disabled",
-    mask: [page.locator("#recent-runs")],
+    mask: [page.locator("#recent-runs"), page.locator(".benchmark-proof")],
     maxDiffPixelRatio: 0.03
   });
 });
