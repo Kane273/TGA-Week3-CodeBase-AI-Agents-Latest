@@ -15,9 +15,7 @@ def run_single_agent_baseline(inputs: dict) -> dict:
     question = inputs["question"]
     evidence = search_corpus(question)[:1]
     for item in evidence:
-        citation = verify_citation.invoke(
-            {"source": item.source, "identifier": item.identifier}
-        )
+        citation = verify_citation.invoke({"source": item.source, "identifier": item.identifier})
         support = verify_claim_support.invoke(
             {"claim": item.claim or item.finding, "abstract": item.abstract}
         )

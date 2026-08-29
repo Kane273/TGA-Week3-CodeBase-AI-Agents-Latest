@@ -59,9 +59,7 @@ def run_local_benchmark() -> dict:
     def summary(system: str) -> dict:
         count = len(rows)
         keys = next(iter(rows))[f"{system}_passes"]
-        passes = {
-            key: sum(row[f"{system}_passes"][key] is True for row in rows) for key in keys
-        }
+        passes = {key: sum(row[f"{system}_passes"][key] is True for row in rows) for key in keys}
         evaluated = {
             key: sum(row[f"{system}_passes"][key] is not None for row in rows) for key in keys
         }
