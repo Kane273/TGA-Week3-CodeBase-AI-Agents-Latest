@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="ResearchGuard multi-agent research protocol council">
+  <title>ResearchGuard</title>
+  <link rel="stylesheet" href="/assets/tokens.css?v=0.3.6">
+  <link rel="stylesheet" href="/assets/styles.css?v=0.3.6">
+  <link rel="stylesheet" href="/assets/enhancements.css?v=0.3.6">
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to workspace</a>
+  <header class="site-header">
+    <div><span class="eyebrow">Multi-agent research council</span><h1>ResearchGuard</h1></div>
+    <div class="header-actions"><label class="header-select">View<select id="view-mode"><option value="simple">Simple</option><option value="expert">Expert</option></select></label><label class="header-select">Role<select id="role-select"><option value="researcher">Researcher</option><option value="ethics">Ethics reviewer</option><option value="statistician">Statistician</option><option value="admin">Administrator</option></select></label><button id="inbox-button" class="text-button" aria-label="Open activity inbox">Inbox <span id="inbox-count" class="badge">0</span></button><button id="privacy-button" class="text-button">Privacy</button><button id="command-button" class="text-button" aria-label="Open command palette">Commands <kbd>⌘K</kbd></button><button id="contrast-button" class="text-button">High contrast: off</button><button id="theme-button" class="text-button" aria-label="Change color theme">Theme: system</button><div id="connection" class="connection" role="status"><span></span> Ready</div></div>
+  </header>
+
+  <main id="workspace">
+    <section class="panel intake" aria-labelledby="question-heading">
+      <div class="panel-heading"><div><span class="step-label">Start</span><h2 id="question-heading">Research question</h2></div><button class="text-button" id="settings-toggle" aria-expanded="false" aria-controls="settings">Connection settings</button></div>
+      <div id="settings" class="settings" hidden>
+        <div class="notice"><strong>Demonstration access control</strong><br>User IDs and the optional shared key separate local demo runs; they are not production authentication.</div>
+        <label>Demo user ID<input id="user" value="demo-user" autocomplete="username"></label>
+        <label>Shared demo API key<input id="key" type="password" autocomplete="current-password" placeholder="Optional"></label>
+        <label class="check-label"><input id="notify-review" type="checkbox"> Notify me when review is required</label>
+        <label class="check-label"><input id="sound-review" type="checkbox"> Play a quiet notification sound</label>
+      </div>
+      <label class="sr-only" for="question">Research question</label>
+      <textarea id="question" rows="3">Does an AI tutor improve algebra transfer for first-year students?</textarea>
+      <div class="demo-inputs" aria-labelledby="demo-inputs-title">
+        <div class="demo-inputs-heading"><strong id="demo-inputs-title">Example research questions</strong><button type="button" class="text-button" id="next-demo-question">Surprise me</button></div>
+        <p class="muted">Choose a topic to replace the question above, or enter your own.</p>
+        <div id="demo-question-options" class="demo-question-options" role="group" aria-label="Example research questions"></div>
+      </div>
+      <div class="actions wrap">
+        <button class="primary" id="run-button">Convene council</button>
+        <button id="showcase-button">Guided showcase</button>
+        <button id="record-button">Record question</button>
+        <button id="live-button">Live dictation</button>
+      </div>
+      <aside class="benchmark-proof" aria-label="Measured local evaluation result"><strong>Measured drafting result: 24 of 24</strong><span>Both systems completed all deterministic drafting tasks with equivalent evidence access. ResearchGuard achieved collaboration value on 24 of 24; that metric is not applicable to a single-agent system. This measures orchestration, not live-model quality.</span></aside>
+    </section>
+
+    <section id="recent-panel" class="panel" aria-labelledby="recent-heading">
+      <div class="panel-heading"><div><span class="step-label">Workspace</span><h2 id="recent-heading">Recent research</h2></div><div class="actions compact"><label class="check-label"><input id="show-archived" type="checkbox"> Archived</label><button class="text-button" id="refresh-runs">Refresh</button><button class="text-button danger" id="reset-workspace">Reset demo data</button></div></div>
+      <div id="recent-runs" class="recent-runs"><div class="skeleton line"></div><div class="skeleton line"></div></div>
+    </section>
+
+    <nav id="section-nav" class="section-nav" aria-label="Run sections" hidden>
+      <a href="#graph-panel">Graph</a><a href="#summary-grid">Protocol</a><a href="#ethics-panel">Ethics</a><a href="#evidence-panel">Evidence</a><a href="#revisions-panel">Revisions</a>
+      <label>Search this run<input id="run-search" type="search" placeholder="Search evidence and events"></label>
+      <label class="check-label"><input id="unresolved-only" type="checkbox"> Unresolved only</label>
+    </nav>
+
+    <div id="announcer" class="sr-only" aria-live="polite"></div>
+    <section id="run-state" class="panel state-panel" aria-labelledby="status-heading" hidden>
+      <div class="status-row"><div><span class="step-label">Current state</span><h2 id="status-heading">Starting</h2></div><span id="status-badge" class="badge">Queued</span></div>
+      <p id="status-message" class="muted">Preparing the research council…</p>
+      <p id="progress-estimate" class="estimate" aria-live="polite"></p>
+      <div class="progress-track" aria-hidden="true"><span id="progress-bar"></span></div>
+      <ol id="progress-list" class="progress-list"></ol>
+      <div id="recovery-actions" class="actions wrap" hidden>
+        <button id="retry-button">Retry in a new run</button>
+        <button id="offline-button">Use offline evidence</button>
+        <button id="continue-button">Continue with available evidence</button>
+        <button class="danger" id="cancel-button">Cancel run</button>
+      </div>
+    </section>
+
+    <section id="scorecard-panel" class="panel" aria-labelledby="scorecard-heading" hidden><div class="panel-heading"><div><span class="step-label">At a glance</span><h2 id="scorecard-heading">Run scorecard</h2></div><button id="presentation-button">Enter presentation mode</button></div><div id="scorecard" class="scorecard-grid"></div></section>
+
+    <section id="graph-panel" class="panel expert-only" aria-labelledby="graph-heading" hidden>
+      <div class="panel-heading"><div><span class="step-label">Orchestration</span><h2 id="graph-heading">Agent graph</h2></div><div class="actions compact"><button class="text-button" id="zoom-out" aria-label="Zoom out graph">−</button><button class="text-button" id="zoom-reset">Reset</button><button class="text-button" id="zoom-in" aria-label="Zoom in graph">+</button><button class="text-button" id="technical-toggle" aria-expanded="false">Show technical names</button></div></div>
+      <div id="graph" class="graph" role="img" aria-label="ResearchGuard agent workflow"></div>
+      <p class="legend"><span class="dot complete"></span>Complete <span class="dot active"></span>Active <span class="dot waiting"></span>Waiting <span class="dot failed"></span>Warning or failure</p>
+      <button id="mobile-workflow" class="mobile-only">Open full workflow timeline</button>
+    </section>
+
+    <div id="summary-grid" class="summary-grid" hidden>
+      <section class="panel" aria-labelledby="overview-heading"><div class="panel-heading"><div><span class="step-label">Result</span><h2 id="overview-heading">Protocol overview</h2></div><button id="edit-protocol">Edit protocol</button></div><div id="overview" class="metric-grid"></div><div id="uncertainty" class="uncertainty"></div></section>
+      <section class="panel" aria-labelledby="comparison-heading"><span class="step-label">Evaluation</span><h2 id="comparison-heading">Compare outcomes</h2><div class="filter-bar"><label>Compare with<select id="compare-run"><option value="baseline">Single-agent baseline</option></select></label><label>Revision<select id="history-version"><option value="latest">Latest</option></select></label></div><div id="comparison"></div></section>
+    </div>
+
+    <section id="ethics-panel" class="panel" aria-labelledby="ethics-heading" hidden>
+      <span class="step-label">Governance</span><h2 id="ethics-heading">Ethics and safety</h2><div id="ethics"></div>
+    </section>
+
+    <section id="evidence-panel" class="panel" aria-labelledby="evidence-heading" hidden>
+      <div class="panel-heading"><div><span class="step-label">Grounding</span><h2 id="evidence-heading">Claim-level evidence</h2></div><span id="evidence-count" class="badge"></span></div>
+      <div class="filter-bar" role="group" aria-label="Evidence filters">
+        <label>Source<select id="source-filter"><option value="all">All sources</option><option value="pubmed">PubMed</option><option value="crossref">Crossref</option><option value="demo">Demonstration</option></select></label>
+        <label>Verification<select id="verified-filter"><option value="all">All</option><option value="verified">Verified only</option><option value="unverified">Needs review</option></select></label>
+        <label>Sort<select id="evidence-sort"><option value="relevance">Highest relevance</option><option value="support">Highest support</option><option value="title">Title</option></select></label>
+        <button id="save-filter">Save filter</button><select id="saved-filters" aria-label="Saved evidence filters"><option value="">Saved filters</option></select><button id="clear-filters">Clear filters</button>
+      </div>
+      <div class="score-help"><strong>How scores work:</strong> support estimates whether the abstract backs the claim; relevance estimates whether the source addresses the question. Both are screening signals, not expert validation.</div>
+      <div id="evidence" class="evidence-list"></div>
+    </section>
+
+    <section id="traceability-panel" class="panel expert-only" aria-labelledby="traceability-heading" hidden><span class="step-label">Trust</span><h2 id="traceability-heading">Evidence-to-protocol traceability</h2><p class="muted">Select a protocol claim to reveal the evidence and confidence signals behind it.</p><div id="traceability" class="traceability-layout"></div></section>
+
+    <section id="disagreement-panel" class="panel expert-only" aria-labelledby="disagreement-heading" hidden><span class="step-label">Deliberation</span><h2 id="disagreement-heading">Agent disagreement</h2><div id="disagreements"></div></section>
+
+    <section id="before-after-panel" class="panel" aria-labelledby="before-after-heading" hidden><span class="step-label">Impact</span><h2 id="before-after-heading">First draft to final protocol</h2><div id="before-after" class="before-after"></div></section>
+
+    <div class="summary-grid">
+      <section id="revisions-panel" class="panel" aria-labelledby="revisions-heading" hidden><span class="step-label">Changes</span><h2 id="revisions-heading">Protocol revisions</h2><div id="revisions"></div></section>
+      <section id="timeline-panel" class="panel" aria-labelledby="timeline-heading" hidden><span class="step-label">Audit</span><h2 id="timeline-heading">Agent timeline</h2><div id="timeline"></div></section>
+    </div>
+
+    <section id="approval-panel" class="panel approval-panel" aria-labelledby="approval-heading" hidden>
+      <span class="step-label">Human decision</span><h2 id="approval-heading">Review required</h2><p id="approval-summary"></p>
+      <div id="readiness-checklist" class="readiness"></div>
+      <div class="responsibility-notice" role="note"><strong>You remain the decision-maker.</strong> ResearchGuard provides research decision support. Verify the evidence, statistical assumptions, participant safeguards, and domain requirements before approving.</div>
+      <div class="actions"><button class="primary" id="open-approve">Review and approve</button><button id="open-changes">Request changes</button></div>
+    </section>
+
+    <section id="review-comments-panel" class="panel" hidden><div class="panel-heading"><div><span class="step-label">Collaboration</span><h2>Review comments</h2></div><label>Comment target<select id="comment-target"><option value="protocol">Protocol overall</option><option value="evidence">Evidence</option><option value="ethics">Ethics</option><option value="statistics">Statistics</option></select></label></div><div id="comments"></div><div class="comment-compose"><label>Add comment<textarea id="comment-text" rows="2" placeholder="Leave a specific review note…"></textarea></label><button id="add-comment">Post comment</button></div></section>
+
+    <section id="exports-panel" class="panel" hidden><h2>Protocol actions</h2><div class="actions wrap"><button id="speak-button">Speak briefing</button><button id="export-button">Export Markdown</button><button id="json-export">Export JSON</button><button id="print-export">Print or save PDF</button><button id="usability-button">Give usability feedback</button></div></section>
+  </main>
+
+  <aside id="presentation" class="presentation" aria-live="polite" hidden><div class="presentation-top"><strong>ResearchGuard presentation</strong><button id="exit-presentation">Exit</button></div><div id="presentation-content" class="presentation-content"></div><div class="presentation-controls"><button id="presentation-back">Previous</button><span id="presentation-step"></span><button class="primary" id="presentation-next">Next</button></div></aside>
+
+  <dialog id="decision-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+    <form method="dialog" id="decision-form">
+      <div class="dialog-heading"><h2 id="dialog-title">Review protocol</h2><button class="icon-button" value="cancel" aria-label="Close dialog">×</button></div>
+      <p id="dialog-description"></p>
+      <div id="decision-consequences" class="notice"></div>
+      <label for="feedback">Feedback or required safeguards</label>
+      <textarea id="feedback" rows="4" placeholder="Describe the exact change the council should make."></textarea>
+      <div class="suggestions" aria-label="Suggested feedback"><button type="button" data-suggestion="Add weekly adverse-event monitoring.">Adverse-event monitoring</button><button type="button" data-suggestion="Add a blinded secondary outcome assessor.">Additional blinding</button><button type="button" data-suggestion="Clarify the missing-data sensitivity analysis.">Missing-data analysis</button></div>
+      <div class="actions dialog-actions"><button value="cancel">Cancel</button><button type="button" class="danger" id="submit-changes">Request changes</button><button type="button" class="primary" id="submit-approval">Approve</button></div>
+    </form>
+  </dialog>
+  <dialog id="edit-dialog" aria-labelledby="edit-title"><form method="dialog" id="edit-form"><div class="dialog-heading"><h2 id="edit-title">Edit protocol</h2><button class="icon-button" value="cancel" aria-label="Close dialog">×</button></div><p class="muted">Edits are recorded and automatically sent through skeptical review again.</p><div id="edit-fields" class="edit-grid"></div><div class="actions dialog-actions"><button value="cancel">Cancel</button><button type="button" class="primary" id="save-edits">Save and re-review</button></div></form></dialog>
+  <dialog id="node-dialog" aria-labelledby="node-title"><div class="dialog-heading"><h2 id="node-title">Agent details</h2><button class="icon-button" data-close-dialog aria-label="Close dialog">×</button></div><div id="node-content"></div></dialog>
+  <dialog id="provenance-dialog" aria-labelledby="provenance-title"><div class="dialog-heading"><h2 id="provenance-title">Evidence provenance</h2><button class="icon-button" data-close-dialog aria-label="Close dialog">×</button></div><ol id="provenance-steps" class="provenance"></ol></dialog>
+  <dialog id="onboarding-dialog" aria-labelledby="onboarding-title"><div class="dialog-heading"><h2 id="onboarding-title">How ResearchGuard works</h2><button class="icon-button" id="skip-onboarding" aria-label="Close introduction">×</button></div><ol class="onboarding"><li><strong>Specialists collaborate.</strong><span>Agents plan, gather evidence, design, calculate, and challenge the protocol.</span></li><li><strong>Scores are screening signals.</strong><span>Support and relevance help prioritize review; they do not replace scientific judgment.</span></li><li><strong>Humans stay responsible.</strong><span>Ethics and final protocol decisions pause for explicit human approval.</span></li></ol><div class="actions dialog-actions"><button class="primary" id="finish-onboarding">Start exploring</button></div></dialog>
+  <dialog id="command-dialog" aria-labelledby="command-title"><div class="dialog-heading"><h2 id="command-title">Command palette</h2><button class="icon-button" data-close-dialog aria-label="Close command palette">×</button></div><label class="sr-only" for="command-search">Search commands</label><input id="command-search" type="search" placeholder="Type a command…" autocomplete="off"><div id="command-results" class="command-results" role="listbox"></div></dialog>
+  <dialog id="inbox-dialog" aria-labelledby="inbox-title"><div class="dialog-heading"><h2 id="inbox-title">Activity inbox</h2><button class="icon-button" data-close-dialog aria-label="Close activity inbox">×</button></div><div id="inbox-items"></div><div class="actions dialog-actions"><button id="clear-inbox">Mark all read</button></div></dialog>
+  <dialog id="workflow-dialog" aria-labelledby="workflow-title"><div class="dialog-heading"><h2 id="workflow-title">Workflow timeline</h2><button class="icon-button" data-close-dialog aria-label="Close workflow timeline">×</button></div><ol id="mobile-progress" class="mobile-progress"></ol></dialog>
+  <dialog id="usability-dialog" aria-labelledby="usability-title"><form method="dialog" id="usability-form"><div class="dialog-heading"><h2 id="usability-title">Help improve ResearchGuard</h2><button class="icon-button" value="cancel" aria-label="Close usability feedback">×</button></div><p class="muted">Feedback stays in this browser and can be exported for a moderated usability study.</p><label>How easy was this task?<input id="usability-score" type="range" min="1" max="5" value="3"><span>1 difficult · 5 easy</span></label><label>What was confusing?<textarea id="usability-note" rows="4"></textarea></label><div class="actions dialog-actions"><button value="cancel">Cancel</button><button type="button" class="primary" id="save-usability">Save feedback</button><button type="button" id="export-usability">Export study data</button></div></form></dialog>
+  <dialog id="privacy-dialog" aria-labelledby="privacy-title"><div class="dialog-heading"><h2 id="privacy-title">Privacy and data controls</h2><button class="icon-button" data-close-dialog aria-label="Close privacy information">×</button></div><div class="data-map"><section><h3>Server persistence</h3><p>Research questions, graph checkpoints, protocol artifacts, approval decisions, and audit events are stored in the configured SQLite or PostgreSQL database and associated with your user ID.</p></section><section><h3>Browser-only data</h3><p>Theme, view role, bookmarks, saved filters, comments, inbox activity, interaction analytics, and usability feedback remain in this browser's local storage.</p></section><section><h3>Voice processing</h3><p>Without provider keys, recording and dictation use browser speech services. Audio is not uploaded or saved by ResearchGuard. ElevenLabs receives audio only when server-side voice features are configured and explicitly used.</p></section><section><h3>External services</h3><p>In live mode, configured language-model providers receive agent prompts. PubMed and Crossref receive evidence queries. LangSmith receives traces only when tracing is enabled.</p></section><section><h3>Retention and deletion</h3><p>Runs remain until archived, deleted, or removed by configured retention cleanup. Resetting the workspace deletes server runs for the current user. The browser-data control below removes local preferences and review metadata.</p></section></div><div class="responsibility-notice"><strong>Do not submit sensitive participant data.</strong> ResearchGuard is designed for research planning, not storage of protected health information or identifiable study records.</div><div class="actions dialog-actions"><button id="export-local-data">Export browser data</button><button class="danger" id="clear-local-data">Clear browser data</button></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden><span id="toast-message"></span><button id="toast-undo" hidden>Undo</button></div>
+  <script src="/assets/i18n.js?v=0.3.6"></script><script src="/assets/app.js?v=0.3.6" defer></script>
+</body>
+</html>

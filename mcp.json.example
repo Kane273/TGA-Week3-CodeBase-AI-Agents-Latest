@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "researchguard": {
+      "command": "/absolute/path/to/Week 3 AI Agent/.venv/bin/python",
+      "args": ["-m", "researchguard.mcp_server"],
+      "cwd": "/absolute/path/to/Week 3 AI Agent",
+      "env": {
+        "RESEARCHGUARD_DB": "researchguard.db"
+      }
+    }
+  }
+}

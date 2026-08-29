@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: researchguard
+      POSTGRES_USER: researchguard
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-researchguard-local}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U researchguard -d researchguard"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - researchguard_pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      RESEARCHGUARD_DB: postgresql://researchguard:${POSTGRES_PASSWORD:-researchguard-local}@postgres:5432/researchguard
+      RESEARCHGUARD_MODE: ${RESEARCHGUARD_MODE:-demo}
+      RESEARCHGUARD_API_KEY: ${RESEARCHGUARD_API_KEY:-}
+      RESEARCHGUARD_RATE_LIMIT: ${RESEARCHGUARD_RATE_LIMIT:-120}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      LANGSMITH_TRACING: ${LANGSMITH_TRACING:-false}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY:-}
+      LANGSMITH_PROJECT: ${LANGSMITH_PROJECT:-researchguard}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  researchguard_pgdata:
