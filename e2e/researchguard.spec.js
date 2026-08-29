@@ -37,6 +37,19 @@ test("guided workflow exposes live agent progress", async ({ page }) => {
 
 test("workspace visual regression", async ({ page }) => {
   const isMobile = (page.viewportSize()?.width ?? Infinity) < 760;
+  if (isMobile) {
+    const layout = await page.evaluate(() => ({
+      viewportWidth: window.innerWidth,
+      documentWidth: document.documentElement.scrollWidth,
+    }));
+    expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewportWidth);
+    await expect(page.getByRole("heading", { name: "Research question" })).toBeVisible();
+    const runButton = page.getByRole("button", { name: "Convene council" });
+    await runButton.scrollIntoViewIfNeeded();
+    await expect(runButton).toBeInViewport();
+    await expect(page.getByRole("heading", { name: "Agent graph" })).toBeHidden();
+    return;
+  }
   await page.addStyleTag({
     content:
       "#recent-runs{height:100px;overflow:hidden}.benchmark-proof{height:96px;overflow:hidden}",
@@ -45,8 +58,7 @@ test("workspace visual regression", async ({ page }) => {
     fullPage: true,
     animations: "disabled",
     mask: [page.locator("#recent-runs"), page.locator(".benchmark-proof")],
-    // Mobile text wraps and rasterizes differently on macOS and Linux runners.
-    maxDiffPixelRatio: isMobile ? 0.08 : 0.03
+    maxDiffPixelRatio: 0.03
   });
 });
 
